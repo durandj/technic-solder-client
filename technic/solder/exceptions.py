@@ -1,0 +1,3 @@
+class SolderAPIError(Exception):
+	pass
+

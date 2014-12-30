@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import argparse
+import colorama
+import tabulate
+
+import technic.solder
+
+def better_print(message, *args, **kwargs):
+	if 'color' in kwargs:
+		color = kwargs['color']
+
+		message = color + message + colorama.Style.RESET_ALL
+
+		del kwargs['color']
+
+	message = message.format(*args, **kwargs)
+
+	print(message)
+
+def print_error(message, *args, **kwargs):
+	better_print(
+		message,
+		color = colorama.Fore.RED,
+		*args,
+		**kwargs
+	)
+
+def parse_server_info_args(parsers):
+	parsers.add_parser(
+		'info',
+		help = 'Get the server information',
+	).set_defaults(func = cmd_server_info)
+
+def parse_modpack_args(parsers):
+	modpack_parser = parsers.add_parser(
+		'modpack',
+	)
+
+	subcommands = modpack_parser.add_subparsers()
+
+	subcommands.add_parser(
+		'list',
+		help = 'List all available modpacks',
+	).set_defaults(func = cmd_modpack_list)
+
+	info_parser = subcommands.add_parser(
+		'info',
+		help = 'Get information about a specific modpack',
+	)
+
+	info_parser.add_argument(
+		'modpack',
+		type = str,
+		help = 'The modpack slug',
+	)
+
+	info_parser.set_defaults(func = cmd_modpack_info)
+
+def parse_args():
+	parser = argparse.ArgumentParser(
+		description = 'Solder command line client',
+	)
+
+	parser.add_argument(
+		'solder_url',
+		type = str,
+		help = 'The Solder server URL',
+	)
+
+	subcommand_parsers = parser.add_subparsers()
+	parse_server_info_args(subcommand_parsers)
+	parse_modpack_args(subcommand_parsers)
+
+	return parser.parse_args()
+
+def command(func):
+	def wrapper(args):
+		server = technic.solder.SolderServer(args.solder_url)
+
+		return func(server, args)
+
+	return wrapper
+
+@command
+def cmd_server_info(server, args):
+	info = server.server_info
+	print(
+		'Version {} {}'.format(
+			info[0],
+			info[1],
+		)
+	)
+
+@command
+def cmd_modpack_list(server, args):
+	print(
+		tabulate.tabulate(
+			[
+				[slug, name]
+				for slug, name in server.modpacks.iteritems()
+			],
+			headers = ['Slug', 'Name'],
+		)
+	)
+
+@command
+def cmd_modpack_info(server, args):
+	modpack = server.get_modpack_info(args.modpack)
+
+	better_print(
+		modpack['display_name'],
+		color = colorama.Fore.GREEN,
+	)
+
+	better_print(
+		'Slug: {}',
+		modpack['name'],
+	)
+
+def main():
+	args = parse_args()
+
+	try:
+		args.func(args)
+	except technic.solder.SolderAPIError as ex:
+		print_error(ex.message)
+
+if __name__ == '__main__':
+	main()
+
