@@ -10,6 +10,13 @@ class SolderServer(object):
 
 		self._modpacks = None
 
+	def get_mod_info(self, slug):
+		return self._request(
+			'/api/mod/{slug}',
+			'GET',
+			slug = slug,
+		)
+
 	def get_modpack_info(self, slug):
 		return self._request(
 			'/api/modpack/{slug}',

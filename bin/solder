@@ -36,6 +36,26 @@ def parse_server_info_args(parsers):
 		help = 'Get the server information',
 	).set_defaults(func = cmd_server_info)
 
+def parse_mod_args(parsers):
+	mod_parser = parsers.add_parser(
+		'mod',
+	)
+
+	subcommands = mod_parser.add_subparsers()
+
+	info_parser = subcommands.add_parser(
+		'info',
+		help = 'Get information about a mod',
+	)
+
+	info_parser.add_argument(
+		'mod_slug',
+		type = str,
+		help = 'The modslug',
+	)
+
+	info_parser.set_defaults(func = cmd_mod_info)
+
 def parse_modpack_args(parsers):
 	modpack_parser = parsers.add_parser(
 		'modpack',
@@ -74,6 +94,7 @@ def parse_args():
 
 	subcommand_parsers = parser.add_subparsers()
 	parse_server_info_args(subcommand_parsers)
+	parse_mod_args(subcommand_parsers)
 	parse_modpack_args(subcommand_parsers)
 
 	return parser.parse_args()
@@ -93,6 +114,27 @@ def cmd_server_info(server, args):
 		'Version {} {}'.format(
 			info[0],
 			info[1],
+		)
+	)
+
+@command
+def cmd_mod_info(server, args):
+	mod = server.get_mod_info(args.mod_slug)
+	better_print(
+		mod['pretty_name'],
+		color = colorama.Fore.GREEN,
+	)
+
+	print(
+		tabulate.tabulate(
+			[
+				['Slug',        mod['name']],
+				['Author',      mod['author']],
+				['Description', mod['description']],
+				['Website',     mod['link']],
+				['Donate URL',  mod['donate_link']],
+				['Versions',    ', '.join(mod['versions'][:10])],
+			]
 		)
 	)
 
