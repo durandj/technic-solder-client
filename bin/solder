@@ -8,6 +8,8 @@ import tabulate
 
 import technic.solder
 
+# pylint: disable=unused-argument
+
 def better_print(message, *args, **kwargs):
 	if 'color' in kwargs:
 		color = kwargs['color']
@@ -115,9 +117,16 @@ def cmd_modpack_info(server, args):
 		color = colorama.Fore.GREEN,
 	)
 
-	better_print(
-		'Slug: {}',
-		modpack['name'],
+	print(
+		tabulate.tabulate(
+			[
+				['Slug',              modpack['name']],
+				['URL',               modpack['url']],
+				['Recommended Build', modpack['recommended']],
+				['Latest Build',      modpack['latest']],
+				['Builds',            ', '.join(modpack['builds'][:10])],
+			]
+		)
 	)
 
 def main():
