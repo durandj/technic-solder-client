@@ -114,6 +114,14 @@ def parse_args():
 	)
 
 	parser.add_argument(
+		'--config',
+		type    = str,
+		default = None,
+		dest    = 'config',
+		help    = 'The Solder client config file. Defaults to ~/.solderrc',
+	)
+
+	parser.add_argument(
 		'solder_url',
 		type = str,
 		help = 'The Solder server URL',
@@ -128,7 +136,7 @@ def parse_args():
 
 def command(func):
 	def wrapper(args):
-		server = technic.solder.SolderServer(args.solder_url)
+		server = technic.solder.SolderServer(args.solder_url, config_file = args.config)
 
 		return func(server, args)
 

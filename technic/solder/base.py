@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import os.path
 import requests
@@ -17,10 +18,24 @@ except ImportError:
 from .exceptions import SolderAPIError
 
 class SolderServer(object):
+	USER_CONFIG  = os.path.join(os.path.expanduser('~'), '.solderrc')
 	SOLDER_CACHE = os.path.join(os.path.expanduser('~'), '.solder-cache')
 
-	def __init__(self, solder_url):
+	def __init__(self, solder_url, config_file = None):
 		self.solder_url = solder_url
+
+		config_file = config_file or SolderServer.USER_CONFIG
+		if os.path.exists(config_file):
+			with open(config_file, 'r') as file_handle:
+				config = json.load(file_handle)
+		else:
+			config = {}
+
+		self.solder_cache = os.path.expanduser(
+			os.path.expandvars(
+				config.get('cache', SolderServer.SOLDER_CACHE)
+			)
+		)
 
 	def get_mod_info(self, slug):
 		return self._request(
@@ -88,8 +103,7 @@ class SolderServer(object):
 
 		return json_resp
 
-	@staticmethod
-	def _download_mod(mod_info, callback = None):
+	def _download_mod(self, mod_info, callback = None):
 		if not callback:
 			# pylint: disable=unused-argument
 			def skip(status, *args, **kwargs):
@@ -103,13 +117,13 @@ class SolderServer(object):
 		url      = mod_info['url']
 		filename = os.path.basename(url)
 
-		if not os.path.exists(SolderServer.SOLDER_CACHE):
-			os.mkdir(SolderServer.SOLDER_CACHE)
+		if not os.path.exists(self.solder_cache):
+			os.mkdir(self.solder_cache)
 
-		if os.path.exists(os.path.join(SolderServer.SOLDER_CACHE, filename)):
+		if os.path.exists(os.path.join(self.solder_cache, filename)):
 			callback('mod.download.cache')
 
-			shutil.copy(os.path.join(SolderServer.SOLDER_CACHE, filename), '.')
+			shutil.copy(os.path.join(self.solder_cache, filename), '.')
 		else:
 			resp = requests.get(url, stream = True)
 			with open(filename, 'wb') as file_handle:
@@ -126,7 +140,7 @@ class SolderServer(object):
 
 				return
 
-			shutil.copy(filename, os.path.join(SolderServer.SOLDER_CACHE, filename))
+			shutil.copy(filename, os.path.join(self.solder_cache, filename))
 
 		callback('mod.download.unpack')
 
