@@ -24,6 +24,14 @@ class SolderServer(object):
 			slug = slug,
 		)
 
+	def get_modpack_build_info(self, slug, build):
+		return self._request(
+			'/api/modpack/{slug}/{build}',
+			'GET',
+			slug  = slug,
+			build = build,
+		)
+
 	@property
 	def server_info(self):
 		info = self._request(

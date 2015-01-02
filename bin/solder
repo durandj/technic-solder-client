@@ -74,12 +74,36 @@ def parse_modpack_args(parsers):
 	)
 
 	info_parser.add_argument(
-		'modpack',
+		'modpack_slug',
 		type = str,
 		help = 'The modpack slug',
 	)
 
 	info_parser.set_defaults(func = cmd_modpack_info)
+
+	build_parser = subcommands.add_parser(
+		'build',
+		help = 'Get a modpack build',
+	)
+
+	build_parser.add_argument(
+		'modpack_slug',
+		type = str,
+		help = 'The modpack slug',
+	)
+
+	build_parser.add_argument(
+		'build',
+		type = str,
+		help = 'The modpack build',
+	)
+
+	parse_modpack_build_args(build_parser.add_subparsers())
+
+def parse_modpack_build_args(parsers):
+	parsers.add_parser(
+		'info',
+	).set_defaults(func = cmd_modpack_build_info)
 
 def parse_args():
 	parser = argparse.ArgumentParser(
@@ -152,7 +176,7 @@ def cmd_modpack_list(server, args):
 
 @command
 def cmd_modpack_info(server, args):
-	modpack = server.get_modpack_info(args.modpack)
+	modpack = server.get_modpack_info(args.modpack_slug)
 
 	better_print(
 		modpack['display_name'],
@@ -167,6 +191,27 @@ def cmd_modpack_info(server, args):
 				['Recommended Build', modpack['recommended']],
 				['Latest Build',      modpack['latest']],
 				['Builds',            ', '.join(modpack['builds'][:10])],
+			]
+		)
+	)
+
+@command
+def cmd_modpack_build_info(server, args):
+	build_info = server.get_modpack_build_info(args.modpack_slug, args.build)
+
+	better_print(
+		'{modpack} Build {build}',
+		color = colorama.Fore.GREEN,
+		modpack = args.modpack_slug,
+		build   = args.build,
+	)
+
+	print(
+		tabulate.tabulate(
+			[
+				['Minecraft Version', build_info['minecraft']],
+				['Forge',             build_info['forge']],
+				['Mod Count',         len(build_info['mods'])],
 			]
 		)
 	)
