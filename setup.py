@@ -12,6 +12,7 @@ setup(
 	licensee         = 'MIT',
 	packages         = find_packages(),
 	install_requires = [
+		'colorama',
 		'tabulate',
 	],
 	scripts          = [
