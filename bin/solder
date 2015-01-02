@@ -4,7 +4,12 @@ from __future__ import print_function
 
 import argparse
 import colorama
+import hashlib
+import os
+import os.path
+import requests
 import tabulate
+import zipfile
 
 import technic.solder
 
@@ -83,7 +88,6 @@ def parse_modpack_args(parsers):
 
 	build_parser = subcommands.add_parser(
 		'build',
-		help = 'Get a modpack build',
 	)
 
 	build_parser.add_argument(
@@ -104,6 +108,10 @@ def parse_modpack_build_args(parsers):
 	parsers.add_parser(
 		'info',
 	).set_defaults(func = cmd_modpack_build_info)
+
+	parsers.add_parser(
+		'download',
+	).set_defaults(func = cmd_modpack_build_download)
 
 def parse_args():
 	parser = argparse.ArgumentParser(
@@ -214,6 +222,76 @@ def cmd_modpack_build_info(server, args):
 				['Mod Count',         len(build_info['mods'])],
 			]
 		)
+	)
+
+@command
+def cmd_modpack_build_download(server, args):
+	build_info = server.get_modpack_build_info(args.modpack_slug, args.build)
+
+	better_print(
+		'Starting download of build {build} for {modpack}...',
+		color   = colorama.Fore.YELLOW,
+		modpack = args.modpack_slug,
+		build   = args.build,
+	)
+
+	for mod in build_info['mods']:
+		better_print('\t{}', mod['name'], color = colorama.Fore.CYAN)
+
+		# TODO: mod cache
+
+		url      = mod['url']
+		filename = os.path.basename(url)
+
+		better_print(
+			'\t\tDownloading...',
+			color = colorama.Fore.YELLOW,
+		)
+
+		resp = requests.get(url, stream = True)
+		with open(filename, 'wb') as file_handle:
+			for chunk in resp.iter_content(chunk_size = 1024):
+				if chunk:
+					file_handle.write(chunk)
+					file_handle.flush()
+
+		better_print(
+			'\t\tVerifying...',
+			color = colorama.Fore.YELLOW,
+		)
+
+		md5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
+		if md5 != mod['md5']:
+			better_print(
+				'\t\tFile did not download correctly!',
+				color = colorama.Fore.RED,
+			)
+
+			continue
+
+		better_print(
+			'\t\tUnpacking...',
+			color = colorama.Fore.YELLOW,
+		)
+
+		with zipfile.ZipFile(filename, 'r') as zip_handle:
+			zip_handle.extractall()
+
+		better_print(
+			'\t\tCleaning...',
+			color = colorama.Fore.YELLOW,
+		)
+
+		os.remove(filename)
+
+		better_print(
+			'\t\tFinished!',
+			color = colorama.Fore.GREEN,
+		)
+
+	better_print(
+		'Finished downloading modpack build!',
+		color = colorama.Fore.GREEN,
 	)
 
 def main():
