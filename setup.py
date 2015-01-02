@@ -13,6 +13,7 @@ setup(
 	packages         = find_packages(),
 	install_requires = [
 		'colorama',
+		'requests',
 		'tabulate',
 	],
 	scripts          = [

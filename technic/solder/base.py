@@ -1,6 +1,13 @@
 import requests
 import requests.exceptions
-import urlparse
+
+try:
+	import urlparse
+except ImportError:
+	# pylint: disable=import-error, no-name-in-module
+	import urllib.parse
+	urlparse = urllib.parse
+	# pylint: enable=import-error, no-name-in-module
 
 from .exceptions import SolderAPIError
 
