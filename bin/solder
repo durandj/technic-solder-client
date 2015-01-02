@@ -4,20 +4,11 @@ from __future__ import print_function
 
 import argparse
 import colorama
-import hashlib
-import os
-import os.path
-import requests
-import shutil
 import tabulate
-import zipfile
 
 import technic.solder
 
 # pylint: disable=unused-argument
-
-USER_HOME    = os.environ['HOME']
-SOLDER_CACHE = os.path.join(USER_HOME, '.solder-cache')
 
 def better_print(message, *args, **kwargs):
 	if 'color' in kwargs:
@@ -228,75 +219,47 @@ def cmd_modpack_build_info(server, args):
 		)
 	)
 
-def download_mod(mod_info):
-	better_print('\t{}', mod_info['name'], color = colorama.Fore.CYAN)
+def callback_mod_download(status, *args, **kwargs):
+	if status == 'mod.download.start':
+		better_print('\t{}', kwargs['name'], color = colorama.Fore.CYAN)
 
-	url      = mod_info['url']
-	filename = os.path.basename(url)
-
-	better_print(
-		'\t\tDownloading...',
-		color = colorama.Fore.YELLOW,
-	)
-
-	if not os.path.exists(SOLDER_CACHE):
-		os.mkdir(SOLDER_CACHE)
-
-	if os.path.exists(os.path.join(SOLDER_CACHE, filename)):
+		better_print(
+			'\t\tDownloading...',
+			color = colorama.Fore.YELLOW,
+		)
+	elif status == 'mod.download.cache':
 		better_print(
 			'\t\tCached, skipping',
 			color = colorama.Fore.YELLOW,
 		)
-
-		shutil.copy(os.path.join(SOLDER_CACHE, filename), '.')
-	else:
-		resp = requests.get(url, stream = True)
-		with open(filename, 'wb') as file_handle:
-			for chunk in resp.iter_content(chunk_size = 1024):
-				if chunk:
-					file_handle.write(chunk)
-					file_handle.flush()
-
+	elif status == 'mod.download.verify':
 		better_print(
 			'\t\tVerifying...',
 			color = colorama.Fore.YELLOW,
 		)
-
-		md5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
-		if md5 != mod_info['md5']:
-			better_print(
-				'\t\tFile did not download correctly!',
-				color = colorama.Fore.RED,
-			)
-
-			return
-
-		shutil.copy(filename, os.path.join(SOLDER_CACHE, filename))
-
-	better_print(
-		'\t\tUnpacking...',
-		color = colorama.Fore.YELLOW,
-	)
-
-	with zipfile.ZipFile(filename, 'r') as zip_handle:
-		zip_handle.extractall()
-
-	better_print(
-		'\t\tCleaning...',
-		color = colorama.Fore.YELLOW,
-	)
-
-	os.remove(filename)
-
-	better_print(
-		'\t\tFinished!',
-		color = colorama.Fore.GREEN,
-	)
+	elif status == 'mod.download.verify.error':
+		better_print(
+			'\t\tFile did not download correctly!',
+			color = colorama.Fore.RED,
+		)
+	elif status == 'mod.download.unpack':
+		better_print(
+			'\t\tUnpacking...',
+			color = colorama.Fore.YELLOW,
+		)
+	elif status == 'mod.download.clean':
+		better_print(
+			'\t\tCleaning...',
+			color = colorama.Fore.YELLOW,
+		)
+	elif status == 'mod.download.finish':
+		better_print(
+			'\t\tFinished!',
+			color = colorama.Fore.GREEN,
+		)
 
 @command
 def cmd_modpack_build_download(server, args):
-	build_info = server.get_modpack_build_info(args.modpack_slug, args.build)
-
 	better_print(
 		'Starting download of build {build} for {modpack}...',
 		color   = colorama.Fore.YELLOW,
@@ -304,8 +267,7 @@ def cmd_modpack_build_download(server, args):
 		build   = args.build,
 	)
 
-	for mod in build_info['mods']:
-		download_mod(mod)
+	server.download_modpack(args.modpack_slug, args.build, callback_mod_download)
 
 	better_print(
 		'Finished downloading modpack build!',

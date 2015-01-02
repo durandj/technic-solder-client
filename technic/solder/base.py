@@ -1,5 +1,10 @@
+import hashlib
+import os
+import os.path
 import requests
 import requests.exceptions
+import shutil
+import zipfile
 
 try:
 	import urlparse
@@ -12,6 +17,8 @@ except ImportError:
 from .exceptions import SolderAPIError
 
 class SolderServer(object):
+	SOLDER_CACHE = os.path.join(os.path.expanduser('~'), '.solder-cache')
+
 	def __init__(self, solder_url):
 		self.solder_url = solder_url
 
@@ -38,6 +45,12 @@ class SolderServer(object):
 			slug  = slug,
 			build = build,
 		)
+
+	def download_modpack(self, slug, build, callback):
+		build_info = self.get_modpack_build_info(slug, build)
+
+		for mod in build_info['mods']:
+			self._download_mod(mod, callback)
 
 	@property
 	def server_info(self):
@@ -79,4 +92,54 @@ class SolderServer(object):
 			raise SolderAPIError(json_resp['error'])
 
 		return json_resp
+
+	@staticmethod
+	def _download_mod(mod_info, callback = None):
+		if callback:
+			callback('mod.download.start', name = mod_info['name'])
+
+		url      = mod_info['url']
+		filename = os.path.basename(url)
+
+		if not os.path.exists(SolderServer.SOLDER_CACHE):
+			os.mkdir(SolderServer.SOLDER_CACHE)
+
+		if os.path.exists(os.path.join(SolderServer.SOLDER_CACHE, filename)):
+			if callback:
+				callback('mod.download.cache')
+
+			shutil.copy(os.path.join(SolderServer.SOLDER_CACHE, filename), '.')
+		else:
+			resp = requests.get(url, stream = True)
+			with open(filename, 'wb') as file_handle:
+				for chunk in resp.iter_content(chunk_size = 1024):
+					if chunk:
+						file_handle.write(chunk)
+						file_handle.flush()
+
+			if callback:
+				callback('mod.download.verify')
+
+			md5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
+			if md5 != mod_info['md5']:
+				if callback:
+					callback('mod.download.verify.error')
+
+				return
+
+			shutil.copy(filename, os.path.join(SolderServer.SOLDER_CACHE, filename))
+
+		if callback:
+			callback('mod.download.unpack')
+
+		with zipfile.ZipFile(filename, 'r') as zip_handle:
+			zip_handle.extractall()
+
+		if callback:
+			callback('mod.download.clean')
+
+		os.remove(filename)
+
+		if callback:
+			callback('mod.download.finish')
 
