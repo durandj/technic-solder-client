@@ -22,8 +22,6 @@ class SolderServer(object):
 	def __init__(self, solder_url):
 		self.solder_url = solder_url
 
-		self._modpacks = None
-
 	def get_mod_info(self, slug):
 		return self._request(
 			'/api/mod/{slug}',
@@ -63,10 +61,7 @@ class SolderServer(object):
 
 	@property
 	def modpacks(self):
-		if not self._modpacks:
-			self._modpacks = self._request('/api/modpack', 'GET')['modpacks']
-
-		return self._modpacks
+		return self._request('/api/modpack', 'GET')['modpacks']
 
 	def _request(self, url, method, **kwargs):
 		url_parts = urlparse.urlparse(self.solder_url)
