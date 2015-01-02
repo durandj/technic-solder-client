@@ -95,8 +95,15 @@ class SolderServer(object):
 
 	@staticmethod
 	def _download_mod(mod_info, callback = None):
-		if callback:
-			callback('mod.download.start', name = mod_info['name'])
+		if not callback:
+			# pylint: disable=unused-argument
+			def skip(status, *args, **kwargs):
+				pass
+
+			callback = skip
+			# pylint: enable=unused-argument
+
+		callback('mod.download.start', name = mod_info['name'])
 
 		url      = mod_info['url']
 		filename = os.path.basename(url)
@@ -105,8 +112,7 @@ class SolderServer(object):
 			os.mkdir(SolderServer.SOLDER_CACHE)
 
 		if os.path.exists(os.path.join(SolderServer.SOLDER_CACHE, filename)):
-			if callback:
-				callback('mod.download.cache')
+			callback('mod.download.cache')
 
 			shutil.copy(os.path.join(SolderServer.SOLDER_CACHE, filename), '.')
 		else:
@@ -117,29 +123,24 @@ class SolderServer(object):
 						file_handle.write(chunk)
 						file_handle.flush()
 
-			if callback:
-				callback('mod.download.verify')
+			callback('mod.download.verify')
 
 			md5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
 			if md5 != mod_info['md5']:
-				if callback:
-					callback('mod.download.verify.error')
+				callback('mod.download.verify.error')
 
 				return
 
 			shutil.copy(filename, os.path.join(SolderServer.SOLDER_CACHE, filename))
 
-		if callback:
-			callback('mod.download.unpack')
+		callback('mod.download.unpack')
 
 		with zipfile.ZipFile(filename, 'r') as zip_handle:
 			zip_handle.extractall()
 
-		if callback:
-			callback('mod.download.clean')
+		callback('mod.download.clean')
 
 		os.remove(filename)
 
-		if callback:
-			callback('mod.download.finish')
+		callback('mod.download.finish')
 
