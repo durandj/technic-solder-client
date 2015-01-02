@@ -18,6 +18,7 @@ setup(
 	],
 	scripts          = [
 		os.path.join('bin', 'solder'),
+		os.path.join('bin', 'solder.py'),
 	],
 )
 
