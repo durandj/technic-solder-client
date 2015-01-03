@@ -59,6 +59,7 @@ class SolderServer(object):
 			build = build,
 		)
 
+	# pylint: disable=too-many-arguments
 	def download_modpack(self, slug, build = None, callback = None, latest = False, directory = None):
 		if not build:
 			modpack_info = self.get_modpack_info(slug)
@@ -78,6 +79,7 @@ class SolderServer(object):
 
 		for mod in build_info['mods']:
 			self._download_mod(mod, directory, callback = callback)
+	# pylint: disable=too-many-arguments
 
 	@property
 	def server_info(self):
