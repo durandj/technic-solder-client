@@ -59,7 +59,7 @@ class SolderServer(object):
 			build = build,
 		)
 
-	def download_modpack(self, slug, build = None, callback = None, latest = False):
+	def download_modpack(self, slug, build = None, callback = None, latest = False, directory = None):
 		if not build:
 			modpack_info = self.get_modpack_info(slug)
 
@@ -71,10 +71,13 @@ class SolderServer(object):
 			if not build:
 				raise SolderAPIError('Could not find a build to use')
 
+		if not directory:
+			directory = '.'
+
 		build_info = self.get_modpack_build_info(slug, build)
 
 		for mod in build_info['mods']:
-			self._download_mod(mod, callback)
+			self._download_mod(mod, directory, callback = callback)
 
 	@property
 	def server_info(self):
@@ -114,7 +117,7 @@ class SolderServer(object):
 
 		return json_resp
 
-	def _download_mod(self, mod_info, callback = None):
+	def _download_mod(self, mod_info, directory, callback = None):
 		if not callback:
 			# pylint: disable=unused-argument
 			def skip(status, *args, **kwargs):
@@ -131,13 +134,15 @@ class SolderServer(object):
 		if not os.path.exists(self.solder_cache):
 			os.mkdir(self.solder_cache)
 
+		file_path = os.path.join(directory, filename)
+
 		if os.path.exists(os.path.join(self.solder_cache, filename)):
 			callback('mod.download.cache')
 
-			shutil.copy(os.path.join(self.solder_cache, filename), '.')
+			shutil.copy(os.path.join(self.solder_cache, filename), directory)
 		else:
 			resp = requests.get(url, stream = True)
-			with open(filename, 'wb') as file_handle:
+			with open(file_path, 'wb') as file_handle:
 				for chunk in resp.iter_content(chunk_size = 1024):
 					if chunk:
 						file_handle.write(chunk)
@@ -145,22 +150,21 @@ class SolderServer(object):
 
 			callback('mod.download.verify')
 
-			md5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
+			md5 = hashlib.md5(open(file_path, 'rb').read()).hexdigest()
 			if md5 != mod_info['md5']:
 				callback('mod.download.verify.error')
-
 				return
 
-			shutil.copy(filename, os.path.join(self.solder_cache, filename))
+			shutil.copy(file_path, os.path.join(self.solder_cache, filename))
 
 		callback('mod.download.unpack')
 
-		with zipfile.ZipFile(filename, 'r') as zip_handle:
-			zip_handle.extractall()
+		with zipfile.ZipFile(file_path, 'r') as zip_handle:
+			zip_handle.extractall(directory)
 
 		callback('mod.download.clean')
 
-		os.remove(filename)
+		os.remove(file_path)
 
 		callback('mod.download.finish')
 

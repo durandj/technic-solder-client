@@ -125,6 +125,13 @@ def parse_modpack_build_args(parsers):
 		help   = 'Use the latest build',
 	)
 
+	download_parser.add_argument(
+		'--dir',
+		type = str,
+		dest = 'dir',
+		help = 'The directory to download the build to',
+	)
+
 	download_parser.set_defaults(func = cmd_modpack_build_download)
 
 def parse_args():
@@ -297,8 +304,9 @@ def cmd_modpack_build_download(server, args):
 	server.download_modpack(
 		args.modpack_slug,
 		args.build,
-		latest   = args.latest,
-		callback = callback_mod_download,
+		latest    = args.latest,
+		directory = args.dir,
+		callback  = callback_mod_download,
 	)
 
 	better_print(
