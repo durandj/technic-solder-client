@@ -91,22 +91,41 @@ def parse_modpack_args(parsers):
 		help = 'The modpack slug',
 	)
 
-	build_parser.add_argument(
+	parse_modpack_build_args(build_parser.add_subparsers())
+
+def parse_modpack_build_args(parsers):
+	info_parser = parsers.add_parser(
+		'info',
+	)
+
+	info_parser.add_argument(
 		'build',
 		type = str,
 		help = 'The modpack build',
 	)
 
-	parse_modpack_build_args(build_parser.add_subparsers())
+	info_parser.set_defaults(func = cmd_modpack_build_info)
 
-def parse_modpack_build_args(parsers):
-	parsers.add_parser(
-		'info',
-	).set_defaults(func = cmd_modpack_build_info)
-
-	parsers.add_parser(
+	download_parser = parsers.add_parser(
 		'download',
-	).set_defaults(func = cmd_modpack_build_download)
+	)
+
+	download_parser.add_argument(
+		'build',
+		type    = str,
+		nargs   = '?',
+		default = None,
+		help    = 'The modpack build',
+	)
+
+	download_parser.add_argument(
+		'--latest',
+		action = 'store_true',
+		dest   = 'latest',
+		help   = 'Use the latest build',
+	)
+
+	download_parser.set_defaults(func = cmd_modpack_build_download)
 
 def parse_args():
 	parser = argparse.ArgumentParser(
@@ -275,7 +294,7 @@ def cmd_modpack_build_download(server, args):
 		build   = args.build,
 	)
 
-	server.download_modpack(args.modpack_slug, args.build, callback_mod_download)
+	server.download_modpack(args.modpack_slug, args.build, latest = args.latest, callback = callback_mod_download)
 
 	better_print(
 		'Finished downloading modpack build!',

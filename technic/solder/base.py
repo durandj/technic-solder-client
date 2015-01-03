@@ -59,7 +59,18 @@ class SolderServer(object):
 			build = build,
 		)
 
-	def download_modpack(self, slug, build, callback):
+	def download_modpack(self, slug, build = None, callback = None, latest = False):
+		if not build:
+			modpack_info = self.get_modpack_info(slug)
+
+			if latest:
+				build = modpack_info['latest']
+			else:
+				build = modpack_info['recommended']
+
+			if not build:
+				raise SolderAPIError('Could not find a build to use')
+
 		build_info = self.get_modpack_build_info(slug, build)
 
 		for mod in build_info['mods']:
