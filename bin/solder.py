@@ -294,7 +294,12 @@ def cmd_modpack_build_download(server, args):
 		build   = args.build,
 	)
 
-	server.download_modpack(args.modpack_slug, args.build, latest = args.latest, callback = callback_mod_download)
+	server.download_modpack(
+		args.modpack_slug,
+		args.build,
+		latest   = args.latest,
+		callback = callback_mod_download,
+	)
 
 	better_print(
 		'Finished downloading modpack build!',
