@@ -4,7 +4,11 @@
 
 Installation requires pip installed as well as Python 2.7 or greater. To install clone the repository and use the following command:
 
-	pip install /path/to/technic-solder-base
+	pip install /path/to/technic-solder-client
+
+Versions are also hosted on PyPi so feel free to use this instead:
+
+	pip install technic-solder-client
 
 ## Usage
 
