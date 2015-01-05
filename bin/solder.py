@@ -193,7 +193,7 @@ def cmd_mod_info(server, args):
 				['Author',      mod['author']],
 				['Description', mod['description']],
 				['Website',     mod['link']],
-				['Donate URL',  mod['donate_link']],
+				['Donate URL',  mod['donate']],
 				['Versions',    ', '.join(mod['versions'][:10])],
 			]
 		)
