@@ -36,6 +36,20 @@ def parse_server_info_args(parsers):
 		help = 'Get the server information',
 	).set_defaults(func = cmd_server_info)
 
+def parse_verify_args(parsers):
+	parser = parsers.add_parser(
+		'verify',
+		help = 'Verify a client API key',
+	)
+
+	parser.add_argument(
+		'api_key',
+		type = str,
+		help = 'The client API key',
+	)
+
+	parser.set_defaults(func = cmd_verify)
+
 def parse_mod_args(parsers):
 	mod_parser = parsers.add_parser(
 		'mod',
@@ -155,6 +169,7 @@ def parse_args():
 
 	subcommand_parsers = parser.add_subparsers()
 	parse_server_info_args(subcommand_parsers)
+	parse_verify_args(subcommand_parsers)
 	parse_mod_args(subcommand_parsers)
 	parse_modpack_args(subcommand_parsers)
 
@@ -176,6 +191,16 @@ def cmd_server_info(server, args):
 			info[0],
 			info[1],
 		)
+	)
+
+@command
+def cmd_verify(server, args):
+	resp = server.verify_api_key(args.api_key)
+
+	better_print(
+		'Key is valid for {}',
+		resp['name'],
+		color = colorama.Fore.GREEN,
 	)
 
 @command

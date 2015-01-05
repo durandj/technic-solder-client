@@ -37,6 +37,13 @@ class SolderServer(object):
 			)
 		)
 
+	def verify_api_key(self, api_key):
+		return self._request(
+			'/api/verify/{key}',
+			'GET',
+			key = api_key,
+		)
+
 	def get_mod_info(self, slug):
 		return self._request(
 			'/api/mod/{slug}',
