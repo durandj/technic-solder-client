@@ -8,6 +8,7 @@ setup(
 	version          = '1.0',
 	description      = 'Python implementation of a Technic Solder client',
 	author           = 'Cadyyan',
+	author_email     = 'cadyyan@gmail.com',
 	url              = 'https://github.com/cadyyan/technic-solder-client',
 	license          = 'MIT',
 	packages         = find_packages(),
