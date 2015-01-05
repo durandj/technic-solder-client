@@ -9,7 +9,7 @@ setup(
 	description      = 'Python implementation of a Technic Solder client',
 	author           = 'Cadyyan',
 	url              = 'https://github.com/cadyyan/technic-solder-client',
-	licensee         = 'MIT',
+	license          = 'MIT',
 	packages         = find_packages(),
 	install_requires = [
 		'colorama',
