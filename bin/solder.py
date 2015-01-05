@@ -146,6 +146,13 @@ def parse_modpack_build_args(parsers):
 		help = 'The directory to download the build to',
 	)
 
+	download_parser.add_argument(
+		'--upgrade',
+		action = 'store_true',
+		dest   = 'upgrade',
+		help   = 'Upgrade the current modpack installation',
+	)
+
 	download_parser.set_defaults(func = cmd_modpack_build_download)
 
 def parse_args():
@@ -331,6 +338,7 @@ def cmd_modpack_build_download(server, args):
 		args.build,
 		latest    = args.latest,
 		directory = args.dir,
+		upgrade   = args.upgrade,
 		callback  = callback_mod_download,
 	)
 

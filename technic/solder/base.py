@@ -67,7 +67,8 @@ class SolderServer(object):
 		)
 
 	# pylint: disable=too-many-arguments
-	def download_modpack(self, slug, build = None, callback = None, latest = False, directory = None):
+	def download_modpack(self, slug,
+			build = None, callback = None, latest = False, directory = None, upgrade = False):
 		if not build:
 			modpack_info = self.get_modpack_info(slug)
 
@@ -83,6 +84,11 @@ class SolderServer(object):
 			directory = '.'
 
 		build_info = self.get_modpack_build_info(slug, build)
+
+		if upgrade:
+			for path in ['bin', 'config', 'mods']:
+				if os.path.exists(os.path.join(directory, path)):
+					shutil.rmtree(os.path.join(directory, path))
 
 		for mod in build_info['mods']:
 			self._download_mod(mod, directory, callback = callback)
