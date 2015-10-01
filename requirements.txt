@@ -3,4 +3,5 @@ mock
 nose
 requests
 tabulate
+urllib3
 
