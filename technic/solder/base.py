@@ -129,8 +129,10 @@ class SolderServer(object):
 
 		resp = self._requests_module.request(method, url)
 
-		if not resp.status_code == 200:
+		# pylint: disable=no-member
+		if not resp.status_code == requests.codes.OK:
 			raise SolderAPIError('API connection error ({})'.format(resp.status_code))
+		# pylint: enable=no-member
 
 		json_resp = resp.json()
 		if 'error' in json_resp:
