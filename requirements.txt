@@ -1,4 +1,5 @@
 colorama
+mock
 requests
 tabulate
 

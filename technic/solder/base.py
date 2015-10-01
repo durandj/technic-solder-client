@@ -7,13 +7,14 @@ import requests.exceptions
 import shutil
 import zipfile
 
+# Provide Python 2 and Python 3 support
 try:
 	import urlparse
 except ImportError:
-	# pylint: disable=import-error, no-name-in-module
+	# pylint: disable=import-error, no-member, no-name-in-module
 	import urllib.parse
 	urlparse = urllib.parse
-	# pylint: enable=import-error, no-name-in-module
+	# pylint: enable=import-error, no-member, no-name-in-module
 
 from .exceptions import SolderAPIError
 
@@ -21,8 +22,9 @@ class SolderServer(object):
 	USER_CONFIG  = os.path.join(os.path.expanduser('~'), '.solderrc')
 	SOLDER_CACHE = os.path.join(os.path.expanduser('~'), '.solder-cache')
 
-	def __init__(self, solder_url, config_file = None):
-		self.solder_url = solder_url
+	def __init__(self, solder_url, config_file = None, requests_module = None):
+		self.solder_url       = solder_url
+		self._requests_module = requests_module if requests_module else requests
 
 		config_file = config_file or SolderServer.USER_CONFIG
 		if os.path.exists(config_file):
@@ -121,7 +123,7 @@ class SolderServer(object):
 			)
 		)
 
-		resp = requests.request(method, url)
+		resp = self._requests_module.request(method, url)
 
 		if not resp.status_code == 200:
 			raise SolderAPIError('API connection error ({})'.format(resp.status_code))
@@ -156,7 +158,7 @@ class SolderServer(object):
 
 			shutil.copy(os.path.join(self.solder_cache, filename), directory)
 		else:
-			resp = requests.get(url, stream = True)
+			resp = self._requests_module.get(url, stream = True)
 			with open(file_path, 'wb') as file_handle:
 				for chunk in resp.iter_content(chunk_size = 1024):
 					if chunk:
