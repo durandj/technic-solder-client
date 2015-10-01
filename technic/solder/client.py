@@ -18,7 +18,7 @@ except ImportError:
 
 from .exceptions import SolderAPIError
 
-class SolderServer(object):
+class SolderClient(object):
 	USER_CONFIG  = os.path.join(os.path.expanduser('~'), '.solderrc')
 	SOLDER_CACHE = os.path.join(os.path.expanduser('~'), '.solder-cache')
 
@@ -26,7 +26,7 @@ class SolderServer(object):
 		self.solder_url       = solder_url
 		self._requests_module = requests_module if requests_module else requests
 
-		config_file = config_file or SolderServer.USER_CONFIG
+		config_file = config_file or SolderClient.USER_CONFIG
 		if os.path.exists(config_file):
 			with open(config_file, 'r') as file_handle:
 				config = json.load(file_handle)
@@ -35,7 +35,7 @@ class SolderServer(object):
 
 		self.solder_cache = os.path.expanduser(
 			os.path.expandvars(
-				config.get('cache', SolderServer.SOLDER_CACHE)
+				config.get('cache', SolderClient.SOLDER_CACHE)
 			)
 		)
 

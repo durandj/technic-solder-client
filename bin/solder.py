@@ -189,7 +189,7 @@ def parse_args():
 
 def command(func):
 	def wrapper(args):
-		server = technic.solder.SolderServer(args.solder_url, config_file = args.config)
+		server = technic.solder.SolderClient(args.solder_url, config_file = args.config)
 
 		return func(server, args)
 

@@ -1,8 +1,8 @@
-from .base       import SolderServer
+from .client     import SolderClient
 from .exceptions import SolderAPIError
 
 __all__ = [
 	'SolderAPIError',
-	'SolderServer',
+	'SolderClient',
 ]
 

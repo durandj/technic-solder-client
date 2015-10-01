@@ -18,7 +18,7 @@ class TestModpackBuilds(unittest.TestCase):
 	def setUp(self):
 		self.requests_mock = mock.MagicMock()
 
-		self.client = technic.solder.SolderServer(
+		self.client = technic.solder.SolderClient(
 			'http://solder.test/',
 			requests_module = self.requests_mock,
 		)
