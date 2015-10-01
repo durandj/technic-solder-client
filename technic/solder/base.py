@@ -109,6 +109,10 @@ class SolderServer(object):
 	def modpacks(self):
 		return self._request('/api/modpack', 'GET')['modpacks']
 
+	@property
+	def mods(self):
+		return self._request('/api/mod', 'GET')['mods']
+
 	def _request(self, url, method, **kwargs):
 		url_parts = urlparse.urlparse(self.solder_url)
 

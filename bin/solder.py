@@ -57,6 +57,11 @@ def parse_mod_args(parsers):
 
 	subcommands = mod_parser.add_subparsers()
 
+	subcommands.add_parser(
+		'list',
+		help = 'List all available mods',
+	).set_defaults(func = cmd_mod_list)
+
 	info_parser = subcommands.add_parser(
 		'info',
 		help = 'Get information about a mod',
@@ -208,6 +213,18 @@ def cmd_verify(server, args):
 		'Key is valid for {}',
 		resp['name'],
 		color = colorama.Fore.GREEN,
+	)
+
+@command
+def cmd_mod_list(server, args):
+	print(
+		tabulate.tabulate(
+			[
+				[slug, name]
+				for slug, name in server.mods.iteritems()
+			],
+			headers = ['Slug', 'Name'],
+		)
 	)
 
 @command
