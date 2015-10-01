@@ -3,7 +3,7 @@ import requests
 import urllib3.response
 
 def create_mock_response(code, content):
-	content = json.dumps(content)
+	content = json.dumps(content).encode('utf-8')
 
 	response = requests.Response()
 	response._content    = content
