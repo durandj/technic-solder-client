@@ -9,6 +9,9 @@ class BuildCommand(technic.solder.cli.command.Command):
 	def setup(self, parser):
 		subparsers = parser.add_subparsers()
 
+		self.add_subcommand(subparsers, GetBuildCommand())
+		self.add_subcommand(subparsers, DownloadBuildCommand())
+
 	def run(self, client, arguments):
 		pass # This is a wrapper command so it will never actually be called
 
@@ -60,6 +63,7 @@ class DownloadBuildCommand(technic.solder.cli.command.Command):
 			'build',
 			type    = str,
 			default = None,
+			nargs   = '?',
 			help    = 'the build number',
 		)
 
