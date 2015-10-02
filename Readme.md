@@ -18,19 +18,27 @@ There are many commands available. All commands take a URL to the Solder server.
 
 Some times you just need to know some basic information about the Solder Server. You can get this information with the info command. This is done like so:
 
-	solder <solder_url> info
+	solder <solder_url> server-info
 
 ### Verify
 
 Used to verify that your API key is valid.
 
-	solder <solder_url> verify <api_key>
+	solder <solder_url> verify-api-key <api_key>
 
 ### Mods
 
-There is currently one command available in regards to mods and it tells you some information about a specific mod. Usage looks like the following:
+#### List
 
-	solder <solder_url> mod info <mod_slug>
+Gets a list of all available mods.
+
+	solder <solder_url> mod list
+
+#### Get
+
+Gets information about a specific mod.
+
+	solder <solder_url> mod get <mod_slug>
 
 The `mod_slug` paramter is a URL friendly short name for the mod. This is set by the Solder server.
 
@@ -44,11 +52,11 @@ This command lists off all the public modpacks that are available on the Solder 
 
 	solder <solder_url> modpack list
 
-#### Info
+#### Get
 
 This command gives some information about the modpack.
 
-	solder <solder_url> modpack info <modpack_slug>
+	solder <solder_url> modpack get <modpack_slug>
 
 The `modpack_slug` parameter is a URL friendly short name for the modpack. This is set by the Solder server.
 
@@ -56,17 +64,17 @@ The `modpack_slug` parameter is a URL friendly short name for the modpack. This 
 
 This allows you to work with modpack builds.
 
-##### Info
+##### Get
 
 This command gives you the information on a particular build of a modpack.
 
-	solder <solder_url> modpack build <modpack_slug> info <build>
+	solder <solder_url> build <modpack_slug> get <build>
 
 ##### Download
 
 This command downloads a build of the modpack.
 
-	solder <solder_url> modpack build <modpack_slug> build download <build> [--latest] [--dir DIR] [--upgrade]
+	solder <solder_url> build <modpack_slug> download <build> [--latest] [--dir DIR] [--upgrade]
 
 The `build` parameter is optional. If you don't give that the recommended build for the mod is chosen unless you also give the `--latest` flag. If you do that then the latest build is downloaded. If you give the `--dir` flag you can set a specific directory to download to. The default is the current directory. If the `--upgrade` flag is given then the bin, config, and mods directory are cleaned (deleted) before downloading the modpack. This flag does nothing if the directories don't exist.
 
