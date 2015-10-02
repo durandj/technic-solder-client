@@ -7,6 +7,12 @@ class BuildCommand(technic.solder.cli.command.Command):
 	command_help = 'Get information about a modpack build'
 
 	def setup(self, parser):
+		parser.add_argument(
+			'modpack_slug',
+			type = str,
+			help = 'the modpack slug',
+		)
+
 		subparsers = parser.add_subparsers()
 
 		self.add_subcommand(subparsers, GetBuildCommand())
