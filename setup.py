@@ -13,7 +13,7 @@ with open('Readme.md', 'r') as readme_file:
 
 setup(
 	name             = 'technic-solder-client',
-	version          = '1.0',
+	version          = '2.0',
 	description      = 'Python implementation of a Technic Solder client',
 	long_description = README,
 	author           = 'Cadyyan',
