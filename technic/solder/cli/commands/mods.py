@@ -31,7 +31,7 @@ class ListModsCommand(technic.solder.cli.command.Command):
 			tabulate.tabulate(
 				[
 					[slug, name]
-					for slug, name in client.mods.iteritems()
+					for slug, name in client.mods.items()
 				],
 				headers = ['Slug', 'Name'],
 			)
